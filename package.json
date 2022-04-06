@@ -1,5 +1,5 @@
 {
-  "name": "urban-renewal-demo",
+  "name": "trtc-route-map",
   "private": true,
   "version": "0.0.0",
   "scripts": {
@@ -8,6 +8,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "pug": "^3.0.2",
+    "pug-plain-loader": "^1.1.0",
+    "stylus": "^0.57.0",
+    "stylus-loader": "^6.2.0",
     "vue": "^3.2.25"
   },
   "devDependencies": {

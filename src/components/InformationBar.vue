@@ -8,15 +8,14 @@ const props = defineProps({
 const isInfoCollapse = ref(true)
 </script>
 
-<template>
-  <div :class="['information', 'flex v-center', isInfoCollapse && 'collapse']">
-    <i class="fas fa-caret-left caret-icon" @click="isInfoCollapse = !isInfoCollapse"/>
-    <div v-for="(identity, key) in identities" :key="key">
-      <span v-if="identity.user?.id"> hi, {{ identity.user.name }} </span>
-      <span v-else> 請登入您的 {{ key }} 帳號 </span>
-      <slot :identity="identity" :identityKey="key" />
-    </div>
-  </div>
+<template lang="pug">
+.information.flex.v-center(:class="[isInfoCollapse && 'collapse']")
+  i.fas.fa-caret-left.caret-icon(@click="isInfoCollapse = !isInfoCollapse")
+  div(v-for="(identity, key) in identities" :key="key")
+    span(v-if="identity.user?.id") hi, {{ identity.user.name }}
+    span(v-else) 請登入您的 {{ key }} 帳號
+    slot(:identity="identity" :identityKey="key")
+  
 </template>
 
 <style scoped>

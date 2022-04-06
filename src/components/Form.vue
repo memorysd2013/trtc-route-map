@@ -1,114 +1,76 @@
 <script setup>
-import { computed, reactive, ref, watch } from 'vue'
-const emit = defineEmits(['emitPlace'])
+import ColorfulButton from './unit/ColorfulButton.vue';
+import { computed, reactive, watch } from 'vue'
+const emit = defineEmits(['chooseOption'])
 const props = defineProps({
-  listData: Object,
+  propData: Object,
 })
 
-const address = ref('')
-
-const filterList = reactive({
-  list: [],
+const metroData = reactive({
+  lineList: [],
+  stationList: [],
 })
 
-const prompt = computed(() => {
-  return filterList.list.length
-    ? `共有${filterList.list.length}筆地點`
-    : '無搜尋結果'
+const stationBc = computed(() => {
+  let activeLine = metroData.lineList.find(m => m.isActive)
+  return activeLine?.bcColor || ''
 })
 
-watch(props.listData, () => {
-  filterList.list = props.listData.list
+watch(() => props.propData.list, () => {
+  metroData.lineList = props.propData.list.map(p => ({ bcColor: p.LineColor, label: `${p.LineName.Zh_tw}(${p.LineID})`, lineId: p.LineID, isActive: false }))
 })
+watch(() => props.propData.stations, () => {
+  metroData.stationList = props.propData.stations.map(p => ({ label: `${p.StationName.Zh_tw}(${p.StationID})`, value: p.StationID, isActive: false }))
+}, { deep: true })
 
-const emitPlace = function (item) {
-  emit('emitPlace', item)
-}
-
-const filterAddress = function () {
-  filterList.list = address.value
-    ? props.listData.list.filter(f => f.stop_name.includes(address.value))
-    : props.listData.list
+/**
+ *
+ */
+const chooseOption = function (item, index, type) {
+  if (type === 'line') {
+    metroData.lineList.forEach((m, i) => m.isActive = i === index)
+  } else if (type === 'station') {
+    metroData.stationList.forEach((m, i) => m.isActive = i === index)
+  }
+  emit('chooseOption', { item, type })
 }
 
 </script>
 
-<template>
-  <div id="form" class="flex between column">
-    <div class="input-area">
-      <div class="flex v-center">
-        <input v-model="address" placeholder="請輸入您要查詢的地址" @input="filterAddress"/>
-        <i class="icon fas fa-search" @click="filterAddress"></i>
-      </div>
-      <div class="prompt">{{ prompt }}</div>
-    </div>
-    <div class="list">
-      <div v-for="(item, i) of filterList.list" :key="i" class="option flex between" @click="emitPlace(item)">
-        <span class="stop-name"> {{ item.stop_name }} </span>
-        <span class="distance"> {{ item.distance }}m </span>
-      </div>
-    </div>
-  </div>
+<template lang="pug">
+#form.flex
+  .metroLineList.flex.column
+    template(v-for="(item, i) of metroData.lineList" :key="i")
+      ColorfulButton(
+        :label="item.label"
+        :isActive="item.isActive"
+        :backgroundColor="item.bcColor" 
+        @click="chooseOption(item, i, 'line')"
+      )
+
+  .metroStationList.flex.column(v-if="metroData.stationList")
+    template(v-for="(item, i) of metroData.stationList" :key="i")
+      ColorfulButton(
+        :label="item.label"
+        :isActive="item.isActive"
+        :backgroundColor="stationBc" 
+        @click="chooseOption(item, i, 'station')"
+      )
+
 </template>
 
-<style scoped>
-input {
-  padding: 0.375rem;
-  font-size: 1.125rem;
-}
+<style lang="stylus" scoped>
+#form
+  background-color #f4f4f4
+  height calc(100vh - 1rem)
+  min-width 360px
+  padding 0.5rem
 
-#form {
-  background-color: #f4f4f4;
-  height: 100vh;
-  min-width: 300px;
-}
+  .metroLineList, .metroStationList
+    overflow auto
+    > *
+      flex 0 0 auto
+      & + *
+        margin-top .25rem
 
-.icon {
-  font-size: 1.125rem;
-  margin-left: 0.5rem;
-  cursor: pointer;
-}
-
-.prompt {
-  margin-top: 0.5rem;
-}
-
-.input-area {
-  padding: 0.5rem;
-}
-
-.list {
-  height: 100%;
-  overflow: auto;
-  padding: 0.5rem;
-}
-
-.option {
-  border: 1px solid #ccc;
-  padding: 0.5rem;
-  cursor: pointer;
-  font-size: 1.125rem;
-  transition: all 0.2s;
-}
-
-.option:hover {
-  box-shadow: 4px 4px 0 0 #ccc;
-  border: 1px solid #000;
-}
-
-.option + .option {
-  margin-top: 0.5rem;
-}
-
-.option .stop-name {
-  display: inline-block;
-  text-overflow: ellipsis;
-  padding-right: 1rem;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.option .distance {
-  flex: 0 0 auto;
-}
 </style>

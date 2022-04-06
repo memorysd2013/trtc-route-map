@@ -84,11 +84,3 @@ export function facebookLogout() {
     })
   })
 }
-
-/**
- * support
- */
-export function adjustPolygonParams(arr) {
-  let [a, b, c] = arr
-  return [b, a, c]
-}

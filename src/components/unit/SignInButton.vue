@@ -18,11 +18,9 @@ const signInOrSignOut = () => {
 
 </script>
 
-<template>
-  <button @click="signInOrSignOut">
-    {{ isSignedIn ? '登出' : '登入' }}
-    <i :class="icon"></i>
-  </button>
+<template lang="pug">
+button(@click="signInOrSignOut") {{ isSignedIn ? '登出' : '登入' }}
+  i.icon
 </template>
 
 <style scoped>
