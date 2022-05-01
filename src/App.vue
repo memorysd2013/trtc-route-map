@@ -1,36 +1,20 @@
 <script setup>
-import { onMounted, reactive, ref, computed } from 'vue'
-import SignInButton from './components/unit/SignInButton.vue';
-import LeafletMap from './components/unit/LeafletMap.vue';
-import Form from './components/Form.vue';
-import InformationBar from './components/InformationBar.vue';
+import { onMounted, ref, reactive, computed } from 'vue'
 import { getLineAPI, getShapeAPI, getStationOfRouteAPI, getStationExitAPI } from './service/api';
 import { handleShapeResponse, handleStationOfRouteResponse } from './service/response-handler';
 import { checkCrossStation } from './static/cross-station-mapping';
-import {
-  getGoogleUser,
-  getFacebookUser,
-  googleLogin,
-  googleLogout,
-  facebookLogin,
-  facebookLogout,
-} from './service/public';
 
-const identities = reactive({
-  google: {
-    user: null,
-    icon: 'fab fa-google',
-    login: googleLogin,
-    logout: googleLogout,
-    getUser: getGoogleUser,
-  },
-  facebook: {
-    user: null,
-    icon: 'fab fa-facebook-f',
-    login: facebookLogin,
-    logout: facebookLogout,
-    getUser: getFacebookUser,
-  }
+import { useGoogleLogin } from './hooks/useGoogleLogin.js'
+import { useFacebookLogin } from './hooks/useFacebookLogin.js'
+
+const { googleState, googleSignout } = useGoogleLogin()
+const { facebookState, facebookCore } = useFacebookLogin()
+
+const isGuest = ref(false)
+const collapeModel = ref('1')
+const avatars = reactive({
+  google: computed(() => googleState.user.picture),
+  facebook: computed(() => facebookState.user.image),
 })
 
 /**
@@ -53,32 +37,15 @@ const placeData = reactive({
   place: {},
 })
 
-onMounted(async () => {
-  // google sdk init 速度很慢，為避免重複 google 登入，只能等 sdk 完全初始化後再取得 user
-  setTimeout(() => {
-    setUser('google');
-    setUser('facebook');
-  }, 1500)
+const isGoogleLogin = computed(() => googleState.isLogin)
+const isFacebookLogin = computed(() => facebookState.isLogin)
 
+onMounted(async () => {
   await getMetroLineOption()
   await getMetroShape()
 })
 
-const setUser = function (key) {
-  identities[key].getUser()
-    .then(res => identities[key].user = res)
-    .catch(err => identities[key].user = null);
-}
-
-const clearUser = function (key) {
-  identities[key].user = null;
-}
-
 const updateMetroData = async function ({ item, type }) {
-  if (!identities.google.user || !identities.facebook.user) {
-    alert('請先登入 Google 與 Facebook 帳號')
-    return
-  }
   switch (type) {
     // 選擇捷運路線：取得該路線各站
     case 'line':
@@ -94,14 +61,6 @@ const updateMetroData = async function ({ item, type }) {
       await getStationExit(item.value)
       break
   }
-}
-
-const updateLocation = async function (m) {
-  if (!identities.google.user || !identities.google.user) {
-    alert('請先登入 Google 與 Facebook 帳號')
-    return
-  }
-  //
 }
 
 /**
@@ -131,26 +90,22 @@ const getStationExit = async function (stationId) {
 </script>
 
 <template lang="pug">
-.infoWrapper
-  InformationBar(:identities="identities" v-slot:default="slotProps")
-    SignInButton(:identity="slotProps.identity" :identityKey="slotProps.identityKey" @setUser="setUser" @clearUser="clearUser")
-
 .wrapper.flex
   Form(:propData="metroData" @chooseOption="updateMetroData")
+    ElCollapse(v-model="collapeModel")
+      ElCollapseItem(title="社群帳號登入" name="1")
+        //- ElCheckbox(v-model="isGuest") 訪客模式
+        .flex
+          GoogleButton(:isLogin="isGoogleLogin" @logout="googleSignout")
+          FacebookButton(:isLogin="isFacebookLogin" @click="facebookCore")
+
   LeafletMap(
-    :identities="identities"
+    :avatars="avatars"
     :placeData="placeData"
     :metroData="metroData"
-    @updateLocation="updateLocation"
   )
 
 </template>
 
-<style lang="stylus" scoped>
-.infoWrapper
-  position absolute
-  top 0
-  right 0
-  z-index 2000
-
+<style lang="scss" scoped>
 </style>

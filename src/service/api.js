@@ -1,8 +1,8 @@
-import { api_url, metro_system } from '../static/config'
+import { API_URL, METRO_SYSTEM } from '../static/config'
 import { setQueryToUrl } from './utils'
 
 export async function getLineAPI({ }) {
-  let url = `${api_url}/Line/${metro_system}`
+  let url = `${API_URL}/Line/${METRO_SYSTEM}`
   let response = await useFetch({ url })
   if (response) {
     return response
@@ -13,7 +13,7 @@ export async function getLineAPI({ }) {
 
 // 取得捷運路線 geojson
 export async function getShapeAPI() {
-  let url = `${api_url}/Shape/${metro_system}`
+  let url = `${API_URL}/Shape/${METRO_SYSTEM}`
   let response = await useFetch({ url })
   if (response) {
     return response
@@ -24,7 +24,7 @@ export async function getShapeAPI() {
 
 // 取得捷運營運路線車站基本資料
 export async function getStationOfRouteAPI({ query }) {
-  let url = setQueryToUrl(`${api_url}/StationOfRoute/${metro_system}`, query)
+  let url = setQueryToUrl(`${API_URL}/StationOfRoute/${METRO_SYSTEM}`, query)
   let response = await useFetch({ url })
   if (response) {
     return response
@@ -35,7 +35,7 @@ export async function getStationOfRouteAPI({ query }) {
 
 // 取得捷運站出入口資訊
 export async function getStationExitAPI({ query }) {
-  let url = setQueryToUrl(`${api_url}/StationExit/${metro_system}`, query)
+  let url = setQueryToUrl(`${API_URL}/StationExit/${METRO_SYSTEM}`, query)
   let response = await useFetch({ url })
   if (response) {
     return response

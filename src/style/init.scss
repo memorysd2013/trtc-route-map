@@ -1,0 +1,37 @@
+body {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-size: 1rem;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+@mixin socialMediaBtnStyle ($c, $fw, $bc) {
+  height: 39px;
+  width: 250px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  cursor: pointer;
+  border-radius: 2px;
+  font-weight: 900;
+  background-color: $bc;
+  color: $c;
+
+  .icon {
+    font-size: 1.25rem;
+    margin-right: 0.5rem;
+  }
+}
+
+#facebookLoginButton {
+  @include socialMediaBtnStyle(#fff, 500, $fbLoginBtnC);
+}
+
+#googleLogoutButton { 
+  @include socialMediaBtnStyle(#000, 500, $googleLoginBtnC);
+  border: 1px solid #ddd;
+  
+}

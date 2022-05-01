@@ -11,7 +11,7 @@ let polylineIns = {}
 let markerIns = []
 
 const props = defineProps({
-  identities: Object,
+  avatars: Object,
   metroData: Object,
 })
 
@@ -21,19 +21,20 @@ const latLng = reactive({ m: [25.001984, 121.5266816] })
 const isMapInit = ref(false)
 const lastTriggerLineId = ref('')
 
-const avatars = computed(() => {
-  return Object.keys(props.identities).map(idt => props.identities[idt]?.user?.image).filter(f => f)
-})
-
 // 登入身份更新時 更新 marker 內容
-watch(props.identities, () => {
-  let els = avatars.value.map(url => `<img src="${url}" class="tl-img">`).join('')
-  setTimeout(() => {
-    if (marker.bindTooltip) {
-      marker.bindTooltip('Here you are <br/>' + els)
-    }
-  }, 0)
-})
+watch(
+  props.avatars,
+  () => {
+    let els = Object.values(props.avatars).filter(f => f).map(url =>
+      `<img src="${url}" style="width: 60px; height: 60px;"/>`
+    ).join('')
+    setTimeout(() => {
+      if (marker.bindTooltip) {
+        marker.bindTooltip('Here you are <br/>' + els)
+      }
+    }, 0)
+  }
+)
 
 // 等 map 完全初始化後才會執行生成 shapeLine
 watch(() => props.metroData.shapeOfList, () => {
@@ -136,35 +137,39 @@ const clearMarkIns = () => {
 #mapid
 </template>
 
-<style lang="stylus">
-.div-icon
-  position relative
-  font-size 1.5rem
-  text-shadow 2px #fbb034
-  text-align center
-  font-weight 500
-  &:before
-    content ''
-    position absolute
-    z-index -1
-    top 0
-    left 0
-    border 15px solid
-    border-color #fbb034 transparent transparent #fbb034
-
+<style lang="scss">
+.div-icon {
+  position: relative;
+  font-size: 1.5rem;
+  text-shadow: 2px #fbb034;
+  text-align: center;
+  font-weight: 500;
+  &:before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    border: 15px solid;
+    border-color: #fbb034 transparent transparent #fbb034;
+  }
+}
 </style>
-<style lang="stylus" scoped>
-#mapid
-  width 100%
-  height 100vh
 
-.tl-img
-  width 60px
-  height 60px
+<style lang="scss" scoped>
+#mapid {
+  width: 100%;
+  height: 100vh;
+}
 
-.div-icon
-  width 30px
-  height 30px
-  background-color blue
+.tl-img {
+  width: 100px;
+  height: 100px;
+}
 
+.div-icon {
+  width: 30px;
+  height: 30px;
+  background-color: blue;
+}
 </style>
